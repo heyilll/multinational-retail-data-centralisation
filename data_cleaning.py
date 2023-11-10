@@ -2,23 +2,15 @@ import pandas as pd
 import numpy as np
 
 class DataCleaning:
+    pd.set_option('display.max_columns', None)
     
     def clean_user_data(self, ndf: pd.DataFrame):
         df = ndf.copy()
-        df.first_name = df.first_name.astype('string')
-        df.last_name = df.last_name.astype('string')
-        df.email_address = df.email_address.astype('string')
-        df.phone_number = df.phone_number.astype('string')
-        df.company = df.company.astype('string')
-        df.address = df.address.astype('string')
-        df.user_uuid = df.user_uuid.astype('string')
-
+        
         df['date_of_birth'] = pd.to_datetime(df['date_of_birth'], errors='coerce')
         df['join_date'] = pd.to_datetime(df['join_date'], errors='coerce')
-        df = df.dropna() 
         df['country_code'].replace({'GGB': 'GB'}, inplace = True)
-        df.country = df.country.astype('category')
-        df.country_code = df.country_code.astype('string')
+        df = df[df['country_code'].str.len() == 2]
         return df
     
     def clean_card_data(self, df: pd.DataFrame):
@@ -29,43 +21,34 @@ class DataCleaning:
                 return x
             
         newdf = df.copy()
-        newdf = newdf.dropna() 
+        
         newdf['date_payment_confirmed'] = pd.to_datetime(newdf['date_payment_confirmed'], errors='coerce')
-        newdf = newdf[newdf['date_payment_confirmed'].notnull()]
+        newdf = newdf[newdf['expiry_date'].str.len() == 5]
 
-        df.card_provider = df.card_provider.astype('category')
         newdf.card_number = newdf.card_number.astype('string')
         newdf.card_number = newdf.card_number.apply(removeq)
-        newdf.expiry_date = newdf.expiry_date.astype('string')
         return newdf
     
     def clean_store_data(self, df):
         newdf = df.copy()
         
         newdf['opening_date'] = pd.to_datetime(newdf['opening_date'], errors='coerce')
-        newdf = newdf[newdf['opening_date'].notnull()]
+        newdf = newdf[newdf['country_code'].str.len() == 2]
         
-        newdf.store_code = newdf.store_code.astype('string')
-        
-        newdf.staff_numbers = pd.to_numeric(newdf.staff_numbers, errors='coerce')
-        newdf.staff_numbers = newdf.staff_numbers.astype('Int64')
+        newdf.staff_numbers = newdf.staff_numbers.str.extract('(\d+)', expand=False)
+        newdf.staff_numbers = newdf.staff_numbers.astype('int')
         
         newdf.latitude = newdf.latitude.astype('float')
         newdf.longitude = newdf.longitude.astype('float')
-        newdf.locality = newdf.locality.astype('string')
-        newdf.address = newdf.address.astype('string')
-        newdf.store_type = newdf.store_type.astype('category')
-        newdf.country_code = newdf.country_code.astype('category')
         newdf['continent'].replace({'eeEurope': 'Europe', 'eeAmerica': 'America'}, inplace = True)
-        newdf.continent = newdf.continent.astype('category')
         
         newdf = newdf.drop('lat', axis=1)
         newdf = newdf.drop('level_0', axis=1)
         
-        newdf.loc[df["store_type"] == "Web Portal", "longitude"] = np.nan
-        newdf.loc[df["store_type"] == "Web Portal", "latitude"] = np.nan
-        newdf.loc[df["store_type"] == "Web Portal", "locality"] = np.nan
-        newdf.loc[df["store_type"] == "Web Portal", "address"] = np.nan
+        # newdf.loc[df["store_type"] == "Web Portal", "longitude"] = np.nan
+        # newdf.loc[df["store_type"] == "Web Portal", "latitude"] = np.nan
+        # newdf.loc[df["store_type"] == "Web Portal", "locality"] = np.nan
+        # newdf.loc[df["store_type"] == "Web Portal", "address"] = np.nan
         return newdf
         
     def convert_product_weights(self, df):
@@ -98,7 +81,7 @@ class DataCleaning:
             
         newdf = df.copy()
         newdf['date_added'] = pd.to_datetime(newdf['date_added'], errors='coerce')
-        newdf = newdf[newdf['date_added'].notnull()]
+        newdf = newdf[newdf["product_code"].str[2] == '-']
         newdf['weight'] = newdf['weight'].astype('string')
         newdf['weight'] = newdf['weight'].apply(func_x)
         newdf['weight'] = newdf['weight'].apply(func_g)
@@ -114,14 +97,9 @@ class DataCleaning:
                 return x
             
         newdf = df.copy()
-        newdf.product_name = newdf.product_name.astype('string')
-        newdf.product_code = newdf.product_code.astype('string')
-        newdf.EAN = newdf.EAN.astype('string') 
-        newdf.category = newdf.category.astype('category')
-        newdf.uuid = newdf.uuid.astype('string')
            
         newdf = newdf.rename(columns = {'removed': 'still_available'})   
-        newdf.loc[newdf["still_available"] == 'Still_available', "still_available"] = True
+        newdf.loc[newdf["still_available"] == "Still_avaliable", "still_available"] = True
         newdf.loc[newdf["still_available"] == "Removed", "still_available"] = False
         newdf.still_available = newdf.still_available.astype('bool')   
         
@@ -135,7 +113,6 @@ class DataCleaning:
         newdf.loc[mid_mask, 'weight_class'] = 'Mid_Sized'
         newdf.loc[heavy_mask, 'weight_class'] = 'Heavy'
         newdf.loc[vheavy_mask, 'weight_class'] = 'Truck_Required'
-        newdf.weight_class = newdf.weight_class.astype('string')
 
         return newdf
     
@@ -166,8 +143,8 @@ class DataCleaning:
         
         return newdf 
         
-if __name__ == "__main__":
-    datacleaner = DataCleaning() 
-    df = pd.read_csv('products.csv')
-    # df = datacleaner.convert_product_weights(df) 
-    # datacleaner.clean_products_data(df)
+# if __name__ == "__main__":
+#     datacleaner = DataCleaning() 
+#     df = pd.read_csv('products.csv')
+#     df = datacleaner.convert_product_weights(df) 
+#     datacleaner.clean_products_data(df)

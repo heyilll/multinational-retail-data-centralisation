@@ -22,7 +22,7 @@ class DatabaseConnector:
     def upload_to_db(self, dataf, tablename, inf):  
         dataf.to_sql(tablename, self.init_db_engine(inf), if_exists='replace')  
         
-if __name__ == "__main__":
-    data_c = DatabaseConnector() 
-    df = data_c.list_db_tables() 
-    print(df)                 
+# if __name__ == "__main__":
+#     data_c = DatabaseConnector() 
+#     df = data_c.list_db_tables() 
+#     print(df)                 
