@@ -1,9 +1,3 @@
--- SELECT DISTINCT(ord.user_uuid)
--- FROM orders_table ord
--- WHERE NOT EXISTS
--- (SELECT * FROM dim_users use
--- WHERE use.user_uuid = ord.user_uuid);
-
 -- Q1
 -- SELECT store.country_code AS country, COUNT(store.country_code) AS total_no_stores  
 -- FROM dim_store_details as store
@@ -94,14 +88,6 @@
 -- total_sales 
 
 -- Q9
---   select dim_date_times.year AS year,  
---          dim_date_times.timestamp, dim_date_times.month, dim_date_times.day,
---          LEAD(dim_date_times.timestamp,1) 
---            over (partition by dim_date_times.year
---                      order by dim_date_times.year, dim_date_times.month, dim_date_times.day, dim_date_times.timestamp) as NextT
---     from orders_table 
--- 	join dim_date_times 
--- 	on orders_table.date_uuid = dim_date_times.date_uuid
 -- with data as (
 --   select dim_date_times.year AS year,  
 --          dim_date_times.timestamp as timestamp,  

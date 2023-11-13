@@ -159,8 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-/db_creds.yaml
-/ldb.yaml
+/db_creds.yaml 
 /date_details.json
 /dim_card_details.csv
 /dim_store_details.csv

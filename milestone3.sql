@@ -1,7 +1,3 @@
--- SELECT card_number
--- FROM dim_card_details
--- WHERE char_length(card_number) = (SELECT max(char_length(card_number)) FROM dim_card_details )
-
 -- ALTER TABLE orders_table
 -- ALTER COLUMN date_uuid TYPE uuid USING date_uuid::uuid, 
 -- ALTER COLUMN user_uuid TYPE uuid USING user_uuid::uuid,
